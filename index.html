@@ -416,7 +416,7 @@
         <div class="title-row">
           <div>
             <h1>Anatomy Study Station</h1>
-            <p class="subtle">A drag-and-build anatomy board for organs, bones, and structure labeling 🫀🦴</p>
+            <p class="subtle">A drag-and-build anatomy board for organs, bones, and structure labeling 🫀🦴 Start with the demo thorax board, then import a custom board if you want to practice something else.</p>
           </div>
           <div class="badge" id="scoreBadge">0/0 correct</div>
         </div>
@@ -449,7 +449,7 @@
       <div class="card">
         <div class="section">
           <h2>Icon Bank</h2>
-          <p class="subtle">Drag anatomy icons onto the numbered targets, or switch to typing mode.</p>
+          <p class="subtle">Drag anatomy icons onto the numbered targets, or switch to typing mode. This demo uses one starter board, and you can import custom boards for other anatomy topics.</p>
 
           <div class="filter-row" style="margin:14px 0 10px;">
             <input id="searchInput" type="text" placeholder="Search icon names" />
@@ -465,6 +465,13 @@
       <div class="card">
         <div class="section">
           <h2>Data + Import</h2>
+
+          <div class="field" style="margin-top:14px;">
+            <label for="csvUrl">CSV Question Bank URL</label>
+            <input id="csvUrl" type="text" placeholder="Paste published CSV URL here" />
+            <button id="loadCsvBtn" class="primary">Load CSV Question Bank</button>
+            <div class="helper">Use a published Google Sheet CSV or any public CSV URL. Supported columns: <strong>id, boardTitle, imageUrl, prompt, allowedIconIds, targets</strong>.</div>
+          </div>
 
           <div class="field" style="margin-top:14px;">
             <label for="iconsJsonUrl">Icons JSON URL</label>
@@ -484,6 +491,13 @@
           <div class="field" style="margin-top:14px;">
             <label for="customPrompt">Prompt</label>
             <textarea id="customPrompt" placeholder="Optional prompt for your current anatomy board"></textarea>
+          </div>
+
+          <div class="field" style="margin-top:14px;">
+            <label for="driveSaveUrl">Google Drive Save Web App URL</label>
+            <input id="driveSaveUrl" type="text" placeholder="Paste your Apps Script web app URL here" />
+            <button id="saveDriveBtn">Save JSON to Google Drive</button>
+            <div class="helper">Direct Drive save from a static GitHub Pages site usually needs a small Google Apps Script web app as a bridge.</div>
           </div>
 
           <div class="field" style="margin-top:14px;">
@@ -530,7 +544,7 @@
 
   <script>
     const DEMO_ICONS = [
-      { id: 'heart', label: 'Heart', src: './images/anatomy-icons/respiratory-system-icon.png', category: 'Cardiovascular' },
+      { id: 'heart', label: 'Heart', src: './images/anatomy-icons/heart.png', category: 'Cardiovascular' },
       { id: 'left-lung', label: 'Left Lung', src: './images/anatomy-icons/left-lung.png', category: 'Respiratory' },
       { id: 'right-lung', label: 'Right Lung', src: './images/anatomy-icons/right-lung.png', category: 'Respiratory' },
       { id: 'trachea', label: 'Trachea', src: './images/anatomy-icons/trachea.png', category: 'Respiratory' },
@@ -544,8 +558,8 @@
       {
         id: 'thorax-anterior',
         boardTitle: 'Thorax Overview',
-        imageUrl: './images/anatomy-boards/anatomy-board-m3-1.png',
-        prompt: 'Place the main thoracic structures in their anatomical positions.',
+        imageUrl: './images/anatomy-boards/thorax-overview.png',
+        prompt: 'Place the main thoracic structures in their anatomical positions. Import a custom board if you want to practice a different anatomy region.',
         placementsMode: 'icons',
         allowedIconIds: ['left-lung', 'right-lung', 'heart', 'trachea'],
         targets: [
@@ -553,20 +567,6 @@
           { id: 't2', x: 37, y: 44, answer: 'Left Lung' },
           { id: 't3', x: 63, y: 44, answer: 'Right Lung' },
           { id: 't4', x: 50, y: 63, answer: 'Heart' }
-        ]
-      },
-      {
-        id: 'pectoral-girdle',
-        boardTitle: 'Pectoral Girdle',
-        imageUrl: './images/anatomy-boards/pectoral-girdle.png',
-        prompt: 'Match the major bones of the upper thorax and shoulder area.',
-        placementsMode: 'icons',
-        allowedIconIds: ['clavicle', 'scapula', 'sternum', 'rib'],
-        targets: [
-          { id: 't1', x: 50, y: 34, answer: 'Sternum' },
-          { id: 't2', x: 31, y: 25, answer: 'Clavicle' },
-          { id: 't3', x: 72, y: 40, answer: 'Scapula' },
-          { id: 't4', x: 49, y: 60, answer: 'Rib' }
         ]
       }
     ];
@@ -602,7 +602,9 @@
       teacherList: document.getElementById('teacherList'),
       searchInput: document.getElementById('searchInput'),
       categoryFilter: document.getElementById('categoryFilter'),
-      iconsJsonUrl: document.getElementById('iconsJsonUrl')
+      iconsJsonUrl: document.getElementById('iconsJsonUrl'),
+      csvUrl: document.getElementById('csvUrl'),
+      driveSaveUrl: document.getElementById('driveSaveUrl')
     };
 
     function currentBoard() {
@@ -838,6 +840,59 @@
       renderTeacherList();
     }
 
+    function splitCsvLine(line) {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        const next = line[i + 1];
+        if (char === '"') {
+          if (inQuotes && next === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          result.push(current);
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      result.push(current);
+      return result;
+    }
+
+    function parseBoardsCsv(text) {
+      const lines = text.trim().split(/
+?
+/).filter(Boolean);
+      if (!lines.length) return [];
+      const headers = splitCsvLine(lines[0]);
+      return lines.slice(1).map((line, idx) => {
+        const cells = splitCsvLine(line);
+        const row = {};
+        headers.forEach((h, i) => row[h.trim()] = (cells[i] || '').trim());
+        const allowedIconIds = (row.allowedIconIds || '').split('|').map(s => s.trim()).filter(Boolean);
+        const targets = (row.targets || '').split('|').map((chunk, i) => {
+          const [answer, x, y] = chunk.split('@');
+          if (!answer || x === undefined || y === undefined) return null;
+          return { id: 't' + (i + 1), answer: answer.trim(), x: Number(x), y: Number(y) };
+        }).filter(Boolean);
+        return {
+          id: row.id || ('board-' + (idx + 1)),
+          boardTitle: row.boardTitle || 'Untitled Anatomy Board',
+          imageUrl: row.imageUrl || '',
+          prompt: row.prompt || 'Place the structures on the anatomy board.',
+          placementsMode: 'icons',
+          allowedIconIds,
+          targets
+        };
+      }).filter(board => board.imageUrl && board.targets.length);
+    }
+
     function downloadText(filename, content, mimeType) {
       const blob = new Blob([content], { type: mimeType || 'application/json' });
       const link = document.createElement('a');
@@ -935,6 +990,31 @@
 
     els.customPrompt.addEventListener('input', renderBoard);
 
+    document.getElementById('loadCsvBtn').addEventListener('click', async () => {
+      const url = els.csvUrl.value.trim();
+      if (!url) {
+        setStatus('Paste a CSV question bank URL first.');
+        return;
+      }
+      try {
+        setStatus('Loading anatomy boards from CSV...');
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const text = await response.text();
+        const boards = parseBoardsCsv(text);
+        if (!boards.length) throw new Error('No usable board rows found.');
+        state.boards = boards;
+        state.boardIndex = 0;
+        state.localBoardImage = '';
+        resetPlacements();
+        setStatus('Loaded ' + boards.length + ' board(s) from CSV.');
+        render();
+      } catch (error) {
+        setStatus('Could not load CSV question bank: ' + error.message + '
+If this is a Google Sheet, make sure it is published to the web as CSV.');
+      }
+    });
+
     document.getElementById('loadIconsBtn').addEventListener('click', async () => {
       const url = els.iconsJsonUrl.value.trim();
       if (!url) {
@@ -995,6 +1075,38 @@
       resetPlacements();
       setStatus('Teacher board converted into a live anatomy practice board.');
       render();
+    });
+
+    document.getElementById('saveDriveBtn').addEventListener('click', async () => {
+      const url = els.driveSaveUrl.value.trim();
+      if (!url) {
+        setStatus('Paste your Google Apps Script web app URL first.');
+        return;
+      }
+      const board = currentBoard();
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        boardId: board.id,
+        boardTitle: board.boardTitle,
+        prompt: els.customPrompt.value.trim() || board.prompt,
+        placements: state.placements,
+        score: getScore()
+      };
+      try {
+        setStatus('Saving JSON to Google Drive bridge...');
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const text = await response.text();
+        if (!response.ok) throw new Error('HTTP ' + response.status + ' ' + text);
+        setStatus('Saved JSON through your Google Drive web app.' + (text ? '
+' + text : ''));
+      } catch (error) {
+        setStatus('Could not save to Google Drive directly: ' + error.message + '
+A small Apps Script bridge is the usual fix for static GitHub Pages apps.');
+      }
     });
 
     document.getElementById('exportTeacherJsonBtn').addEventListener('click', () => {
