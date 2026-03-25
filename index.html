@@ -712,9 +712,9 @@ const DEMO_QUESTIONS = [
       els.diagramPrompt.textContent = els.customPrompt.value.trim() || q.prompt;
       els.scoreBadge.textContent = score.correct + '/' + score.total + ' correct';
       els.progressBar.style.width = progress + '%';
-      els.teacherModeBtn.textContent = state.teacherMode ? 'Exit Teacher Mode' : 'Teacher Mode';
+      els.teacherModeBtn.textContent = state.teacherMode ? 'Exit Create Mode' : 'Create Mode';
       els.teacherModeBtn.className = state.teacherMode ? 'active' : '';
-      els.typingModeBtn.textContent = state.typingMode ? 'Drag Labels Mode' : 'Type Answers';
+      els.typingModeBtn.textContent = state.typingMode ? 'Labels Mode' : 'Type Answers Mode';
       els.typingModeBtn.className = state.typingMode ? 'active' : '';
     }
 
