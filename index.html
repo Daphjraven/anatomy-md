@@ -3,621 +3,1029 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Anatomy Resource Viewer</title>
+  <title>Anatomy Study Station</title>
   <style>
     :root {
-      --bg: #0b1020;
-      --panel: #121a30;
-      --panel-2: #18223d;
-      --text: #eaf0ff;
-      --muted: #a9b5d6;
-      --accent: #8fd3ff;
-      --accent-2: #b7f0c0;
-      --border: rgba(255,255,255,0.10);
-      --shadow: 0 12px 30px rgba(0,0,0,0.25);
-      --radius: 18px;
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --ink: #172033;
+      --muted: #5d6b88;
+      --line: #dbe3f0;
+      --accent: #2563eb;
+      --accent-soft: #eaf2ff;
+      --good: #dff7e8;
+      --good-line: #7dd3a4;
+      --bad: #fde7e7;
+      --bad-line: #f1a8a8;
+      --shadow: 0 16px 40px rgba(28, 39, 71, 0.08);
+      --radius: 22px;
     }
 
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:
-        radial-gradient(circle at top right, rgba(143, 211, 255, 0.12), transparent 28%),
-        radial-gradient(circle at left center, rgba(183, 240, 192, 0.10), transparent 20%),
-        var(--bg);
-      color: var(--text);
-      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
     }
 
     .app {
-      max-width: 1240px;
+      max-width: 1400px;
       margin: 0 auto;
-      padding: 28px;
-    }
-
-    .hero {
-      background: linear-gradient(135deg, rgba(143, 211, 255, 0.12), rgba(183, 240, 192, 0.08));
-      border: 1px solid var(--border);
-      border-radius: 26px;
-      padding: 26px;
-      box-shadow: var(--shadow);
-      margin-bottom: 20px;
-    }
-
-    .hero h1 {
-      margin: 0 0 10px;
-      font-size: clamp(1.7rem, 2.7vw, 2.6rem);
-      line-height: 1.1;
-    }
-
-    .hero p {
-      margin: 0;
-      color: var(--muted);
-      max-width: 76ch;
-      line-height: 1.55;
-    }
-
-    .grid {
+      padding: 20px;
       display: grid;
-      grid-template-columns: 360px minmax(0, 1fr);
+      grid-template-columns: 1.15fr 0.85fr;
       gap: 20px;
-      align-items: start;
     }
 
-    .panel {
-      background: rgba(18, 26, 48, 0.88);
-      backdrop-filter: blur(6px);
-      border: 1px solid var(--border);
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       overflow: hidden;
     }
 
-    .panel-header {
-      padding: 18px 18px 8px;
+    .section { padding: 20px; }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 30px; }
+    h2 { font-size: 22px; }
+    .subtle { color: var(--muted); font-size: 14px; margin-top: 6px; }
+
+    .badge {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid #bfdbfe;
+      border-radius: 999px;
+      padding: 9px 14px;
       font-weight: 700;
-      font-size: 1.05rem;
+      white-space: nowrap;
     }
 
-    .panel-body {
-      padding: 18px;
-    }
-
-    label {
-      display: block;
-      font-size: 0.92rem;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
-    select, input, textarea {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--panel-2);
-      color: var(--text);
-      outline: none;
-      font: inherit;
-    }
-
-    select:focus, input:focus, textarea:focus {
-      border-color: rgba(143, 211, 255, 0.5);
-      box-shadow: 0 0 0 3px rgba(143, 211, 255, 0.15);
-    }
-
-    .control-group {
-      margin-bottom: 14px;
-    }
-
-    .button-row {
+    .toolbar, .teacher-actions, .filter-row, .mode-row {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin-top: 16px;
+    }
+
+    .toolbar { margin-bottom: 16px; }
+
+    button, input, textarea, select {
+      font: inherit;
     }
 
     button {
-      border: 0;
-      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 16px;
       padding: 11px 14px;
-      font: inherit;
-      font-weight: 700;
       cursor: pointer;
-      transition: transform 0.12s ease, opacity 0.12s ease;
+      transition: 0.18s ease;
     }
 
-    button:hover { transform: translateY(-1px); }
-    button:active { transform: translateY(0); }
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(31, 41, 55, 0.08);
+    }
 
-    .primary { background: var(--accent); color: #0b1020; }
-    .secondary { background: #263352; color: var(--text); }
-    .ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    button.primary {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
 
-    .pill-row {
+    button.active {
+      background: #111827;
+      color: white;
+      border-color: #111827;
+    }
+
+    .meta {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-top: 8px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 14px;
+    }
+
+    .progress-shell {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      background: #e8edf8;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #2563eb, #22c55e);
+      transition: width 0.2s ease;
+    }
+
+    .board {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      overflow: hidden;
+      background: white;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02);
+    }
+
+    .board.teacher { cursor: crosshair; }
+    .board-image, .board-placeholder {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .board-image {
+      object-fit: contain;
+      background: #fbfcff;
+    }
+
+    .board-placeholder {
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      text-align: center;
+      padding: 20px;
+    }
+
+    .target {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      min-width: 130px;
+      max-width: 220px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.94);
+      padding: 10px 12px;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.08);
+      font-size: 14px;
+    }
+
+    .target.good {
+      background: var(--good);
+      border-color: var(--good-line);
+    }
+
+    .target.bad {
+      background: var(--bad);
+      border-color: var(--bad-line);
+    }
+
+    .target-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .target-index {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: #111827;
+      color: white;
+      display: inline-grid;
+      place-items: center;
+      font-size: 12px;
+      flex: 0 0 auto;
+    }
+
+    .target-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .target-thumb {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+      border-radius: 10px;
+      background: white;
+      border: 1px solid var(--line);
+      padding: 4px;
+      flex: 0 0 auto;
+    }
+
+    .teacher-pin {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.95);
+      border: 2px solid var(--accent);
+      box-shadow: 0 10px 18px rgba(37, 99, 235, 0.15);
+      font-size: 12px;
+      font-weight: 700;
+      pointer-events: none;
+      max-width: 240px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar {
+      display: grid;
+      gap: 20px;
+      align-content: start;
+    }
+
+    .icon-bank {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      max-height: 420px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .icon-chip {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: white;
+      padding: 10px;
+      cursor: grab;
+      box-shadow: 0 8px 14px rgba(0,0,0,0.04);
+      user-select: none;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .icon-chip:active { cursor: grabbing; }
+
+    .icon-chip img {
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      border-radius: 12px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      padding: 4px;
+      flex: 0 0 auto;
+    }
+
+    .icon-meta {
+      min-width: 0;
+    }
+
+    .icon-label {
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .icon-category {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 3px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .field label {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: white;
+      color: var(--ink);
+    }
+
+    textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
+
+    .status, .teacher-list {
+      border-radius: 18px;
+      background: #f3f6fb;
+      padding: 12px 14px;
+      color: var(--muted);
+      white-space: pre-wrap;
+    }
+
+    .teacher-list {
+      min-height: 72px;
+      font-size: 14px;
+    }
+
+    .helper {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .mini-title {
+      font-size: 13px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .upload-box {
+      border: 1px dashed #b7c4de;
+      border-radius: 18px;
+      padding: 18px;
+      text-align: center;
+      background: #fbfcff;
+    }
+
+    .typing-input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 8px 10px;
+      background: white;
+      color: var(--ink);
+      min-width: 0;
     }
 
     .pill {
-      background: rgba(143, 211, 255, 0.12);
-      border: 1px solid rgba(143, 211, 255, 0.18);
-      color: #dff5ff;
+      display: inline-block;
+      font-size: 12px;
+      padding: 3px 9px;
       border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 0.84rem;
+      background: #eff6ff;
+      color: var(--accent);
+      border: 1px solid #dbeafe;
+      margin-top: 5px;
     }
 
-    .viewer {
-      min-height: 720px;
-      display: grid;
-      grid-template-rows: auto auto 1fr;
-    }
-
-    .resource-meta {
-      padding: 18px 18px 0;
-    }
-
-    .resource-title {
-      margin: 0;
-      font-size: clamp(1.25rem, 2vw, 1.8rem);
-    }
-
-    .resource-desc {
-      margin-top: 10px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    .resource-surface {
-      padding: 18px;
-      min-height: 540px;
-    }
-
-    .surface-frame {
-      width: 100%;
-      min-height: 540px;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: #0d1427;
-      overflow: hidden;
-      display: grid;
-      place-items: center;
-    }
-
-    .surface-frame iframe,
-    .surface-frame img,
-    .surface-frame video,
-    .surface-frame audio,
-    .surface-frame object {
-      width: 100%;
-      height: 100%;
-      border: 0;
-      display: block;
-    }
-
-    .surface-frame img {
-      object-fit: contain;
-      max-height: 100%;
-      background: #0d1427;
-    }
-
-    .placeholder {
-      padding: 28px;
-      text-align: center;
-      color: var(--muted);
-      line-height: 1.6;
-      max-width: 60ch;
-    }
-
-    .library-list {
-      margin-top: 12px;
-      display: grid;
-      gap: 10px;
-      max-height: 280px;
-      overflow: auto;
-      padding-right: 4px;
-    }
-
-    .library-item {
-      padding: 12px 14px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: rgba(255,255,255,0.02);
-      cursor: pointer;
-      transition: border-color 0.12s ease, background 0.12s ease, transform 0.12s ease;
-    }
-
-    .library-item:hover {
-      border-color: rgba(143, 211, 255, 0.35);
-      background: rgba(143, 211, 255, 0.06);
-      transform: translateY(-1px);
-    }
-
-    .library-item.active {
-      border-color: rgba(143, 211, 255, 0.55);
-      background: rgba(143, 211, 255, 0.12);
-    }
-
-    .library-item-title {
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .library-item-meta {
-      font-size: 0.84rem;
-      color: var(--muted);
-    }
-
-    .tiny {
-      font-size: 0.84rem;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 18px 0;
-    }
-
-    @media (max-width: 980px) {
-      .grid {
+    @media (max-width: 1000px) {
+      .app {
         grid-template-columns: 1fr;
       }
-      .viewer {
-        min-height: 600px;
+      .icon-bank {
+        grid-template-columns: 1fr 1fr;
       }
-      .surface-frame {
-        min-height: 420px;
+    }
+
+    @media (max-width: 640px) {
+      .app {
+        padding: 12px;
       }
+      .section {
+        padding: 16px;
+      }
+      .icon-bank {
+        grid-template-columns: 1fr;
+      }
+      h1 { font-size: 24px; }
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <section class="hero">
-      <h1>Anatomy Resource Storer + Viewer</h1>
-      <p>
-        A single-file HTML library for anatomy PDFs, images, videos, audio, and embeddable web tools. Choose a topic,
-        pick a resource from the dropdown, and the viewer updates instantly. Replace the sample resources with your own links,
-        then host this page publicly to embed it in Notion.
-      </p>
-    </section>
-
-    <section class="grid">
-      <aside class="panel">
-        <div class="panel-header">Library Controls</div>
-        <div class="panel-body">
-          <div class="control-group">
-            <label for="topicSelect">Topic</label>
-            <select id="topicSelect"></select>
+    <div class="card">
+      <div class="section">
+        <div class="title-row">
+          <div>
+            <h1>Anatomy Study Station</h1>
+            <p class="subtle">A drag-and-build anatomy board for organs, bones, and structure labeling 🫀🦴</p>
           </div>
-
-          <div class="control-group">
-            <label for="resourceSelect">Resource</label>
-            <select id="resourceSelect"></select>
-          </div>
-
-          <div class="control-group">
-            <label for="searchInput">Quick filter</label>
-            <input id="searchInput" type="text" placeholder="Filter by title, tag, or type" />
-          </div>
-
-          <div class="button-row">
-            <button class="primary" id="openSelectedBtn">Open Selected Resource</button>
-            <button class="secondary" id="randomBtn">Random Resource</button>
-            <button class="ghost" id="copyUrlBtn">Copy Current Resource URL</button>
-          </div>
-
-          <div class="divider"></div>
-
-          <div class="tiny">
-            Tip: resource types supported here are <strong>pdf</strong>, <strong>image</strong>, <strong>video</strong>,
-            <strong>audio</strong>, <strong>embed</strong>, and <strong>link</strong>.
-          </div>
-
-          <div class="divider"></div>
-
-          <div class="panel-header" style="padding:0 0 10px;">Visible Resources</div>
-          <div id="libraryList" class="library-list"></div>
-        </div>
-      </aside>
-
-      <main class="panel viewer">
-        <div class="resource-meta">
-          <h2 class="resource-title" id="resourceTitle">Choose a resource</h2>
-          <div class="pill-row" id="resourcePills"></div>
-          <p class="resource-desc" id="resourceDesc">
-            The selected PDF, image, or multimedia file will appear below. This viewer is happiest with public URLs.
-          </p>
+          <div class="badge" id="scoreBadge">0/0 correct</div>
         </div>
 
-        <div class="resource-meta tiny" id="resourceUrlText"></div>
+        <div class="toolbar">
+          <button id="prevBtn">Previous</button>
+          <button id="nextBtn" class="primary">Next Board</button>
+          <button id="resetBtn">Reset</button>
+          <button id="showAnswersBtn">Show Answers</button>
+          <button id="saveSessionBtn">Save Session</button>
+          <button id="typingModeBtn">Type Answers</button>
+          <button id="teacherModeBtn">Teacher Mode</button>
+        </div>
 
-        <div class="resource-surface">
-          <div class="surface-frame" id="viewerSurface">
-            <div class="placeholder">
-              Pick a topic, select a resource, and open it. Your anatomy archive can become a tidy little museum wing
-              instead of a folder avalanche.
+        <div class="meta">
+          <strong id="boardTitle">Loading...</strong>
+          <span>•</span>
+          <span id="boardPrompt">Preparing the board...</span>
+        </div>
+
+        <div class="progress-shell">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="board" id="board"></div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="card">
+        <div class="section">
+          <h2>Icon Bank</h2>
+          <p class="subtle">Drag anatomy icons onto the numbered targets, or switch to typing mode.</p>
+
+          <div class="filter-row" style="margin:14px 0 10px;">
+            <input id="searchInput" type="text" placeholder="Search icon names" />
+            <select id="categoryFilter">
+              <option value="All">All Categories</option>
+            </select>
+          </div>
+
+          <div class="icon-bank" id="iconBank"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section">
+          <h2>Data + Import</h2>
+
+          <div class="field" style="margin-top:14px;">
+            <label for="iconsJsonUrl">Icons JSON URL</label>
+            <input id="iconsJsonUrl" type="text" placeholder="Optional icons.json URL from your GitHub Pages site" />
+            <button id="loadIconsBtn" class="primary">Load Icon Bank JSON</button>
+            <div class="helper">Best pattern: keep icon files in <strong>images/anatomy-icons/</strong> and list them in an <strong>icons.json</strong> file.</div>
+          </div>
+
+          <div class="field" style="margin-top:14px;">
+            <label for="boardImageUpload">Upload Board Image</label>
+            <div class="upload-box">
+              <input id="boardImageUpload" type="file" accept="image/*" />
+              <div class="helper" style="margin-top:8px;">Good for skull diagrams, thorax maps, heart views, lung labeling boards, and sagittal sections.</div>
             </div>
           </div>
+
+          <div class="field" style="margin-top:14px;">
+            <label for="customPrompt">Prompt</label>
+            <textarea id="customPrompt" placeholder="Optional prompt for your current anatomy board"></textarea>
+          </div>
+
+          <div class="field" style="margin-top:14px;">
+            <label>Status</label>
+            <div class="status" id="statusBox">Demo mode loaded.</div>
+          </div>
         </div>
-      </main>
-    </section>
+      </div>
+
+      <div class="card">
+        <div class="section">
+          <h2>Teacher Mode</h2>
+          <p class="subtle">Type the structure name, then click the board to place a target.</p>
+
+          <div class="field" style="margin-top:14px;">
+            <label for="teacherTitle">Board Title</label>
+            <input id="teacherTitle" type="text" value="Custom Anatomy Board" />
+          </div>
+
+          <div class="field" style="margin-top:14px;">
+            <label for="teacherCategory">Suggested Category</label>
+            <input id="teacherCategory" type="text" placeholder="Examples: Skeletal, Muscular, Respiratory, Cardiovascular" />
+          </div>
+
+          <div class="field" style="margin-top:14px;">
+            <label for="teacherAnswer">Next Target Label</label>
+            <input id="teacherAnswer" type="text" placeholder="Type structure, then click image to place it" />
+          </div>
+
+          <div class="teacher-actions" style="margin-top:14px;">
+            <button id="useTeacherBoardBtn" class="primary">Use as Practice Board</button>
+            <button id="exportTeacherJsonBtn">Export Board JSON</button>
+            <button id="clearTeacherTargetsBtn">Clear Targets</button>
+          </div>
+
+          <div style="margin-top:14px;">
+            <div class="mini-title">Placed targets</div>
+            <div class="teacher-list" id="teacherList">No teacher targets placed yet.</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
-    // =====================================================
-    // Replace this sample data with your own anatomy links.
-    // Each item needs: topic, title, type, url.
-    // Optional: description, tags, source.
-    // =====================================================
-    const resources = [
+    const DEMO_ICONS = [
+      { id: 'heart', label: 'Heart', src: './images/anatomy-icons/heart.png', category: 'Cardiovascular' },
+      { id: 'left-lung', label: 'Left Lung', src: './images/anatomy-icons/left-lung.png', category: 'Respiratory' },
+      { id: 'right-lung', label: 'Right Lung', src: './images/anatomy-icons/right-lung.png', category: 'Respiratory' },
+      { id: 'trachea', label: 'Trachea', src: './images/anatomy-icons/trachea.png', category: 'Respiratory' },
+      { id: 'clavicle', label: 'Clavicle', src: './images/anatomy-icons/clavicle.png', category: 'Skeletal' },
+      { id: 'scapula', label: 'Scapula', src: './images/anatomy-icons/scapula.png', category: 'Skeletal' },
+      { id: 'sternum', label: 'Sternum', src: './images/anatomy-icons/sternum.png', category: 'Skeletal' },
+      { id: 'rib', label: 'Rib', src: './images/anatomy-icons/rib.png', category: 'Skeletal' }
+    ];
+
+    const DEMO_BOARDS = [
       {
-        topic: "Respiratory System",
-        title: "Lung Anatomy PDF",
-        type: "pdf",
-        url: "https://drive.google.com/file/d/1ZgmA2ZYTFxS2OBqn-KVKQDMVbioZQU69/preview",
-        description: "Sample PDF slot for lecture notes, atlas pages, or a review packet.",
-        tags: ["lungs", "pdf", "review"],
-        source: "Public sample"
+        id: 'thorax-anterior',
+        boardTitle: 'Thorax Overview',
+        imageUrl: './images/anatomy-boards/thorax-overview.png',
+        prompt: 'Place the main thoracic structures in their anatomical positions.',
+        placementsMode: 'icons',
+        allowedIconIds: ['left-lung', 'right-lung', 'heart', 'trachea'],
+        targets: [
+          { id: 't1', x: 50, y: 24, answer: 'Trachea' },
+          { id: 't2', x: 37, y: 44, answer: 'Left Lung' },
+          { id: 't3', x: 63, y: 44, answer: 'Right Lung' },
+          { id: 't4', x: 50, y: 63, answer: 'Heart' }
+        ]
       },
       {
-        topic: "Respiratory System",
-        title: "Respiratory Histology Image",
-        type: "image",
-        url: "https://upload.wikimedia.org/wikipedia/commons/8/80/Lung_histology_01.jpg",
-        description: "Example image slot for a tissue slide, labeled diagram, or screenshot from your notes.",
-        tags: ["histology", "image", "alveoli"],
-        source: "Wikimedia Commons"
-      },
-      {
-        topic: "Respiratory System",
-        title: "Breathing Mechanics Video",
-        type: "video",
-        url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
-        description: "Sample video slot. Replace with a public MP4 or a hosted lecture clip.",
-        tags: ["video", "inspiration", "expiration"],
-        source: "MDN sample"
-      },
-      {
-        topic: "Skeletal System",
-        title: "Bone Markings Atlas Image",
-        type: "image",
-        url: "https://upload.wikimedia.org/wikipedia/commons/f/f7/Human_skeleton_front_en.svg",
-        description: "Example diagram slot for axial or appendicular skeleton review.",
-        tags: ["bones", "atlas", "image"],
-        source: "Wikimedia Commons"
-      },
-      {
-        topic: "Skeletal System",
-        title: "Osteology Web Viewer",
-        type: "embed",
-        url: "https://example.com",
-        description: "Use this for embeddable web tools, anatomy widgets, or hosted interactive content.",
-        tags: ["embed", "interactive"],
-        source: "Replace with your viewer URL"
-      },
-      {
-        topic: "General Study Tools",
-        title: "Audio Review Prompt",
-        type: "audio",
-        url: "https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3",
-        description: "Example audio slot for spoken review notes or pronunciation clips.",
-        tags: ["audio", "review"],
-        source: "MDN sample"
-      },
-      {
-        topic: "General Study Tools",
-        title: "External Resource Link",
-        type: "link",
-        url: "https://example.com",
-        description: "Use this when you just want a one-click launchpad to an external page.",
-        tags: ["link"],
-        source: "Replace with your resource"
+        id: 'pectoral-girdle',
+        boardTitle: 'Pectoral Girdle',
+        imageUrl: './images/anatomy-boards/pectoral-girdle.png',
+        prompt: 'Match the major bones of the upper thorax and shoulder area.',
+        placementsMode: 'icons',
+        allowedIconIds: ['clavicle', 'scapula', 'sternum', 'rib'],
+        targets: [
+          { id: 't1', x: 50, y: 34, answer: 'Sternum' },
+          { id: 't2', x: 31, y: 25, answer: 'Clavicle' },
+          { id: 't3', x: 72, y: 40, answer: 'Scapula' },
+          { id: 't4', x: 49, y: 60, answer: 'Rib' }
+        ]
       }
     ];
 
-    const topicSelect = document.getElementById('topicSelect');
-    const resourceSelect = document.getElementById('resourceSelect');
-    const searchInput = document.getElementById('searchInput');
-    const openSelectedBtn = document.getElementById('openSelectedBtn');
-    const randomBtn = document.getElementById('randomBtn');
-    const copyUrlBtn = document.getElementById('copyUrlBtn');
-    const libraryList = document.getElementById('libraryList');
-    const resourceTitle = document.getElementById('resourceTitle');
-    const resourceDesc = document.getElementById('resourceDesc');
-    const resourcePills = document.getElementById('resourcePills');
-    const resourceUrlText = document.getElementById('resourceUrlText');
-    const viewerSurface = document.getElementById('viewerSurface');
+    const state = {
+      boards: [...DEMO_BOARDS],
+      icons: [...DEMO_ICONS],
+      boardIndex: 0,
+      placements: {},
+      showAnswers: false,
+      draggingItem: null,
+      localBoardImage: '',
+      teacherMode: false,
+      typingMode: false,
+      teacherTargets: []
+    };
 
-    const topics = [...new Set(resources.map(r => r.topic))].sort();
-    let currentResources = [];
-    let currentIndex = -1;
+    const els = {
+      board: document.getElementById('board'),
+      iconBank: document.getElementById('iconBank'),
+      boardTitle: document.getElementById('boardTitle'),
+      boardPrompt: document.getElementById('boardPrompt'),
+      scoreBadge: document.getElementById('scoreBadge'),
+      progressBar: document.getElementById('progressBar'),
+      statusBox: document.getElementById('statusBox'),
+      customPrompt: document.getElementById('customPrompt'),
+      boardImageUpload: document.getElementById('boardImageUpload'),
+      teacherModeBtn: document.getElementById('teacherModeBtn'),
+      typingModeBtn: document.getElementById('typingModeBtn'),
+      teacherAnswer: document.getElementById('teacherAnswer'),
+      teacherTitle: document.getElementById('teacherTitle'),
+      teacherCategory: document.getElementById('teacherCategory'),
+      teacherList: document.getElementById('teacherList'),
+      searchInput: document.getElementById('searchInput'),
+      categoryFilter: document.getElementById('categoryFilter'),
+      iconsJsonUrl: document.getElementById('iconsJsonUrl')
+    };
 
-    function escapeHtml(value) {
-      return String(value)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
+    function currentBoard() {
+      return state.boards[state.boardIndex] || state.boards[0];
     }
 
-    function populateTopics() {
-      topicSelect.innerHTML = topics.map(topic =>
-        `<option value="${escapeHtml(topic)}">${escapeHtml(topic)}</option>`
-      ).join('');
+    function normalize(value) {
+      return String(value || '').trim().toLowerCase();
     }
 
-    function getFilteredResources() {
-      const topic = topicSelect.value;
-      const filter = searchInput.value.trim().toLowerCase();
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
 
-      return resources.filter(resource => {
-        const matchesTopic = resource.topic === topic;
-        if (!matchesTopic) return false;
-        if (!filter) return true;
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
 
-        const haystack = [
-          resource.title,
-          resource.type,
-          resource.description || '',
-          ...(resource.tags || [])
-        ].join(' ').toLowerCase();
+    function setStatus(message) {
+      els.statusBox.textContent = message;
+    }
 
-        return haystack.includes(filter);
+    function resetPlacements() {
+      const board = currentBoard();
+      state.placements = {};
+      (board.targets || []).forEach(target => {
+        state.placements[target.id] = '';
+      });
+      state.showAnswers = false;
+      document.getElementById('showAnswersBtn').textContent = 'Show Answers';
+    }
+
+    function getIconById(id) {
+      return state.icons.find(icon => icon.id === id) || null;
+    }
+
+    function getAllowedIcons(board) {
+      if (!board.allowedIconIds || !board.allowedIconIds.length) return state.icons;
+      return state.icons.filter(icon => board.allowedIconIds.includes(icon.id));
+    }
+
+    function filteredIcons() {
+      const board = currentBoard();
+      const allowed = getAllowedIcons(board);
+      const q = normalize(els.searchInput.value);
+      const cat = els.categoryFilter.value;
+      return allowed.filter(icon => {
+        const searchOkay = !q || normalize(icon.label).includes(q) || normalize(icon.category).includes(q);
+        const catOkay = cat === 'All' || icon.category === cat;
+        return searchOkay && catOkay;
       });
     }
 
-    function populateResources(preserveSelection = false) {
-      const previousUrl = preserveSelection && currentResources[currentIndex]
-        ? currentResources[currentIndex].url
-        : null;
-
-      currentResources = getFilteredResources();
-      resourceSelect.innerHTML = currentResources.map((resource, index) =>
-        `<option value="${index}">${escapeHtml(resource.title)} (${escapeHtml(resource.type)})</option>`
-      ).join('');
-
-      if (currentResources.length === 0) {
-        currentIndex = -1;
-        renderLibraryList();
-        renderEmptyState('No resources match this filter yet. Add one to the array at the top of the file.');
-        return;
+    function populateCategoryFilter() {
+      const board = currentBoard();
+      const categories = [...new Set(getAllowedIcons(board).map(icon => icon.category).filter(Boolean))].sort();
+      const current = els.categoryFilter.value || 'All';
+      els.categoryFilter.innerHTML = '<option value="All">All Categories</option>';
+      categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        els.categoryFilter.appendChild(option);
+      });
+      if ([...els.categoryFilter.options].some(opt => opt.value === current)) {
+        els.categoryFilter.value = current;
       }
-
-      const previousIndex = previousUrl
-        ? currentResources.findIndex(r => r.url === previousUrl)
-        : -1;
-
-      currentIndex = previousIndex >= 0 ? previousIndex : 0;
-      resourceSelect.value = String(currentIndex);
-      renderLibraryList();
-      renderResource(currentResources[currentIndex]);
     }
 
-    function renderLibraryList() {
-      if (currentResources.length === 0) {
-        libraryList.innerHTML = `<div class="tiny">No resources to display.</div>`;
+    function renderIconBank() {
+      els.iconBank.innerHTML = '';
+      if (state.typingMode) {
+        els.iconBank.innerHTML = '<div class="helper">Typing mode is on. Type structure names directly into the numbered targets on the board.</div>';
         return;
       }
 
-      libraryList.innerHTML = currentResources.map((resource, index) => {
-        const active = index === currentIndex ? 'active' : '';
-        const tags = (resource.tags || []).slice(0, 3).join(' • ');
-        return `
-          <div class="library-item ${active}" data-index="${index}">
-            <div class="library-item-title">${escapeHtml(resource.title)}</div>
-            <div class="library-item-meta">${escapeHtml(resource.type)}${tags ? ' • ' + escapeHtml(tags) : ''}</div>
-          </div>
-        `;
-      }).join('');
+      const icons = filteredIcons();
+      if (!icons.length) {
+        els.iconBank.innerHTML = '<div class="helper">No icons match this filter yet.</div>';
+        return;
+      }
 
-      [...libraryList.querySelectorAll('.library-item')].forEach(item => {
-        item.addEventListener('click', () => {
-          currentIndex = Number(item.dataset.index);
-          resourceSelect.value = String(currentIndex);
-          renderLibraryList();
-          renderResource(currentResources[currentIndex]);
+      icons.forEach(icon => {
+        const chip = document.createElement('div');
+        chip.className = 'icon-chip';
+        chip.draggable = true;
+        chip.addEventListener('dragstart', () => {
+          state.draggingItem = icon;
         });
+        chip.addEventListener('dragend', () => {
+          state.draggingItem = null;
+        });
+
+        chip.innerHTML = `
+          <img src="${escapeHtml(icon.src)}" alt="${escapeHtml(icon.label)}" />
+          <div class="icon-meta">
+            <div class="icon-label">${escapeHtml(icon.label)}</div>
+            <div class="icon-category">${escapeHtml(icon.category || 'General')}</div>
+          </div>
+        `;
+        els.iconBank.appendChild(chip);
       });
     }
 
-    function renderPills(resource) {
-      const pills = [resource.type, resource.topic, ...(resource.tags || [])];
-      resourcePills.innerHTML = pills.map(pill => `<span class="pill">${escapeHtml(pill)}</span>`).join('');
+    function getScore() {
+      const board = currentBoard();
+      const total = (board.targets || []).length;
+      let correct = 0;
+      board.targets.forEach(target => {
+        if (normalize(state.placements[target.id]) === normalize(target.answer)) {
+          correct += 1;
+        }
+      });
+      return { correct, total };
     }
 
-    function renderEmptyState(message) {
-      resourceTitle.textContent = 'Nothing selected';
-      resourceDesc.textContent = message;
-      resourcePills.innerHTML = '';
-      resourceUrlText.textContent = '';
-      viewerSurface.innerHTML = `<div class="placeholder">${escapeHtml(message)}</div>`;
+    function renderTeacherList() {
+      if (!state.teacherTargets.length) {
+        els.teacherList.textContent = 'No teacher targets placed yet.';
+        return;
+      }
+      els.teacherList.textContent = state.teacherTargets.map((target, i) => {
+        return (i + 1) + '. ' + target.answer + ' @ ' + Math.round(target.x) + '%, ' + Math.round(target.y) + '%';
+      }).join('\n');
     }
 
-    function renderResource(resource) {
-      resourceTitle.textContent = resource.title;
-      resourceDesc.textContent = resource.description || 'No description yet.';
-      resourceUrlText.textContent = resource.url;
-      renderPills(resource);
+    function renderBoard() {
+      const board = currentBoard();
+      const imageToShow = state.localBoardImage || board.imageUrl;
+      const score = getScore();
+      const progress = score.total ? Math.round((score.correct / score.total) * 100) : 0;
 
-      const safeUrl = escapeHtml(resource.url);
-      let html = '';
+      els.board.className = 'board' + (state.teacherMode ? ' teacher' : '');
+      els.board.innerHTML = '';
 
-      if (resource.type === 'pdf') {
-        html = `<iframe src="${safeUrl}" title="${escapeHtml(resource.title)}"></iframe>`;
-      } else if (resource.type === 'image') {
-        html = `<img src="${safeUrl}" alt="${escapeHtml(resource.title)}" />`;
-      } else if (resource.type === 'video') {
-        html = `<video controls src="${safeUrl}"></video>`;
-      } else if (resource.type === 'audio') {
-        html = `<div style="width:100%; padding: 22px;"><audio controls src="${safeUrl}"></audio></div>`;
-      } else if (resource.type === 'embed') {
-        html = `<iframe src="${safeUrl}" title="${escapeHtml(resource.title)}" loading="lazy"></iframe>`;
-      } else if (resource.type === 'link') {
-        html = `
-          <div class="placeholder">
-            <p>This resource opens as an external link.</p>
-            <p><a href="${safeUrl}" target="_blank" rel="noopener noreferrer" style="color: var(--accent); font-weight: 700;">Open resource ↗</a></p>
-          </div>
-        `;
+      if (imageToShow) {
+        const img = document.createElement('img');
+        img.className = 'board-image';
+        img.src = imageToShow;
+        img.alt = board.boardTitle;
+        els.board.appendChild(img);
       } else {
-        html = `
-          <div class="placeholder">
-            Unsupported type: ${escapeHtml(resource.type)}
-          </div>
-        `;
+        const placeholder = document.createElement('div');
+        placeholder.className = 'board-placeholder';
+        placeholder.innerHTML = '<div><strong>No anatomy board yet.</strong><br />Upload an image or point this board at one from your repo.</div>';
+        els.board.appendChild(placeholder);
       }
 
-      viewerSurface.innerHTML = html;
-    }
+      board.targets.forEach((target, index) => {
+        const placed = state.placements[target.id] || '';
+        const isCorrect = placed && normalize(placed) === normalize(target.answer);
+        const isWrong = placed && !isCorrect;
 
-    function openSelectedResource() {
-      if (currentIndex < 0 || !currentResources[currentIndex]) return;
-      renderResource(currentResources[currentIndex]);
-      renderLibraryList();
-    }
+        const targetEl = document.createElement('div');
+        targetEl.className = 'target' + (isCorrect ? ' good' : '') + (isWrong ? ' bad' : '');
+        targetEl.style.left = clamp(target.x, 5, 95) + '%';
+        targetEl.style.top = clamp(target.y, 5, 95) + '%';
 
-    function chooseRandomResource() {
-      if (!currentResources.length) return;
-      currentIndex = Math.floor(Math.random() * currentResources.length);
-      resourceSelect.value = String(currentIndex);
-      renderLibraryList();
-      renderResource(currentResources[currentIndex]);
-    }
+        targetEl.addEventListener('dragover', e => e.preventDefault());
+        targetEl.addEventListener('drop', e => {
+          e.preventDefault();
+          if (!state.draggingItem || state.typingMode) return;
+          state.placements[target.id] = state.draggingItem.label;
+          render();
+        });
 
-    async function copyCurrentUrl() {
-      if (currentIndex < 0 || !currentResources[currentIndex]) return;
-      const url = currentResources[currentIndex].url;
-      try {
-        await navigator.clipboard.writeText(url);
-        copyUrlBtn.textContent = 'Copied!';
-        setTimeout(() => copyUrlBtn.textContent = 'Copy Current Resource URL', 1100);
-      } catch {
-        copyUrlBtn.textContent = 'Copy failed';
-        setTimeout(() => copyUrlBtn.textContent = 'Copy Current Resource URL', 1100);
+        if (state.typingMode && !state.showAnswers) {
+          targetEl.innerHTML = `
+            <div class="target-row">
+              <span class="target-index">${index + 1}</span>
+              <input class="typing-input" type="text" placeholder="Type answer" value="${escapeHtml(placed)}" />
+            </div>
+          `;
+          const input = targetEl.querySelector('.typing-input');
+          input.addEventListener('click', e => e.stopPropagation());
+          input.addEventListener('input', e => {
+            state.placements[target.id] = e.target.value;
+            renderBoard();
+          });
+        } else if (state.showAnswers) {
+          const matchIcon = state.icons.find(icon => normalize(icon.label) === normalize(target.answer));
+          targetEl.innerHTML = `
+            <div class="target-row">
+              <span class="target-index">${index + 1}</span>
+              ${matchIcon ? `<img class="target-thumb" src="${escapeHtml(matchIcon.src)}" alt="${escapeHtml(matchIcon.label)}" />` : ''}
+              <span class="target-text">${escapeHtml(target.answer)}</span>
+            </div>
+          `;
+        } else {
+          const matchIcon = state.icons.find(icon => normalize(icon.label) === normalize(placed));
+          targetEl.innerHTML = `
+            <div class="target-row">
+              <span class="target-index">${index + 1}</span>
+              ${matchIcon ? `<img class="target-thumb" src="${escapeHtml(matchIcon.src)}" alt="${escapeHtml(matchIcon.label)}" />` : ''}
+              <span class="target-text">${escapeHtml(placed || ('Drop ' + (index + 1)))}</span>
+            </div>
+          `;
+        }
+
+        els.board.appendChild(targetEl);
+      });
+
+      if (state.teacherMode) {
+        state.teacherTargets.forEach((target, index) => {
+          const pin = document.createElement('div');
+          pin.className = 'teacher-pin';
+          pin.style.left = clamp(target.x, 3, 97) + '%';
+          pin.style.top = clamp(target.y, 3, 97) + '%';
+          pin.textContent = (index + 1) + '. ' + target.answer;
+          els.board.appendChild(pin);
+        });
       }
+
+      els.boardTitle.textContent = board.boardTitle;
+      els.boardPrompt.textContent = els.customPrompt.value.trim() || board.prompt;
+      els.scoreBadge.textContent = score.correct + '/' + score.total + ' correct';
+      els.progressBar.style.width = progress + '%';
+      els.teacherModeBtn.textContent = state.teacherMode ? 'Exit Teacher Mode' : 'Teacher Mode';
+      els.teacherModeBtn.className = state.teacherMode ? 'active' : '';
+      els.typingModeBtn.textContent = state.typingMode ? 'Drag Icons Mode' : 'Type Answers';
+      els.typingModeBtn.className = state.typingMode ? 'active' : '';
     }
 
-    topicSelect.addEventListener('change', () => populateResources(false));
-    searchInput.addEventListener('input', () => populateResources(true));
-    resourceSelect.addEventListener('change', () => {
-      currentIndex = Number(resourceSelect.value);
-      renderLibraryList();
-      renderResource(currentResources[currentIndex]);
+    function render() {
+      populateCategoryFilter();
+      renderIconBank();
+      renderBoard();
+      renderTeacherList();
+    }
+
+    function downloadText(filename, content, mimeType) {
+      const blob = new Blob([content], { type: mimeType || 'application/json' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      state.boardIndex = (state.boardIndex - 1 + state.boards.length) % state.boards.length;
+      state.localBoardImage = '';
+      resetPlacements();
+      render();
     });
-    openSelectedBtn.addEventListener('click', openSelectedResource);
-    randomBtn.addEventListener('click', chooseRandomResource);
-    copyUrlBtn.addEventListener('click', copyCurrentUrl);
 
-    populateTopics();
-    populateResources();
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      state.boardIndex = (state.boardIndex + 1) % state.boards.length;
+      state.localBoardImage = '';
+      resetPlacements();
+      render();
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      resetPlacements();
+      render();
+    });
+
+    document.getElementById('showAnswersBtn').addEventListener('click', () => {
+      state.showAnswers = !state.showAnswers;
+      document.getElementById('showAnswersBtn').textContent = state.showAnswers ? 'Hide Answers' : 'Show Answers';
+      render();
+    });
+
+    document.getElementById('saveSessionBtn').addEventListener('click', () => {
+      const board = currentBoard();
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        boardId: board.id,
+        boardTitle: board.boardTitle,
+        prompt: els.customPrompt.value.trim() || board.prompt,
+        placements: state.placements,
+        score: getScore()
+      };
+      downloadText((board.id || 'session') + '-session.json', JSON.stringify(payload, null, 2), 'application/json');
+    });
+
+    document.getElementById('typingModeBtn').addEventListener('click', () => {
+      state.typingMode = !state.typingMode;
+      setStatus(state.typingMode
+        ? 'Typing mode is on. Enter anatomy structure names directly into each numbered target.'
+        : 'Drag-icon mode is back on. Use the icon bank to place structures.');
+      render();
+    });
+
+    document.getElementById('teacherModeBtn').addEventListener('click', () => {
+      state.teacherMode = !state.teacherMode;
+      render();
+    });
+
+    els.board.addEventListener('click', event => {
+      if (!state.teacherMode) return;
+      const answer = els.teacherAnswer.value.trim();
+      if (!answer) {
+        setStatus('Teacher mode is on. Type a structure name in “Next Target Label,” then click the board to place it.');
+        return;
+      }
+      const rect = els.board.getBoundingClientRect();
+      const x = ((event.clientX - rect.left) / rect.width) * 100;
+      const y = ((event.clientY - rect.top) / rect.height) * 100;
+      state.teacherTargets.push({
+        id: 'tt' + (state.teacherTargets.length + 1),
+        answer,
+        x: clamp(x, 0, 100),
+        y: clamp(y, 0, 100)
+      });
+      els.teacherAnswer.value = '';
+      setStatus('Placed teacher target: ' + answer);
+      render();
+    });
+
+    els.searchInput.addEventListener('input', renderIconBank);
+    els.categoryFilter.addEventListener('change', renderIconBank);
+
+    els.boardImageUpload.addEventListener('change', event => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      state.localBoardImage = URL.createObjectURL(file);
+      if (!els.customPrompt.value.trim()) {
+        els.customPrompt.value = 'Practice board for ' + file.name;
+      }
+      setStatus('Loaded local anatomy board: ' + file.name);
+      render();
+    });
+
+    els.customPrompt.addEventListener('input', renderBoard);
+
+    document.getElementById('loadIconsBtn').addEventListener('click', async () => {
+      const url = els.iconsJsonUrl.value.trim();
+      if (!url) {
+        setStatus('Paste an icons.json URL first.');
+        return;
+      }
+      try {
+        setStatus('Loading icon bank JSON...');
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const data = await response.json();
+        if (!Array.isArray(data) || !data.length) throw new Error('JSON did not contain an icon array.');
+        state.icons = data;
+        setStatus('Loaded ' + data.length + ' anatomy icon(s).');
+        render();
+      } catch (error) {
+        setStatus('Could not load icon JSON: ' + error.message + '\nMake sure the JSON is public and served from your GitHub Pages site or another public URL.');
+      }
+    });
+
+    document.getElementById('clearTeacherTargetsBtn').addEventListener('click', () => {
+      state.teacherTargets = [];
+      setStatus('Teacher targets cleared.');
+      render();
+    });
+
+    document.getElementById('useTeacherBoardBtn').addEventListener('click', () => {
+      const imageUrl = state.localBoardImage || currentBoard().imageUrl;
+      if (!imageUrl) {
+        setStatus('Upload a board image first, or start from a board that already has one.');
+        return;
+      }
+      if (!state.teacherTargets.length) {
+        setStatus('Place at least one teacher target before converting to a practice board.');
+        return;
+      }
+      const category = els.teacherCategory.value.trim();
+      const board = {
+        id: 'custom-board-' + Date.now(),
+        boardTitle: els.teacherTitle.value.trim() || 'Custom Anatomy Board',
+        imageUrl,
+        prompt: els.customPrompt.value.trim() || 'Place the structures on the anatomy board.',
+        placementsMode: 'icons',
+        allowedIconIds: category
+          ? state.icons.filter(icon => icon.category === category).map(icon => icon.id)
+          : [],
+        targets: state.teacherTargets.map((target, index) => ({
+          id: 't' + (index + 1),
+          answer: target.answer,
+          x: target.x,
+          y: target.y
+        }))
+      };
+
+      state.boards.unshift(board);
+      state.boardIndex = 0;
+      state.teacherMode = false;
+      resetPlacements();
+      setStatus('Teacher board converted into a live anatomy practice board.');
+      render();
+    });
+
+    document.getElementById('exportTeacherJsonBtn').addEventListener('click', () => {
+      const imageUrl = state.localBoardImage || currentBoard().imageUrl;
+      if (!imageUrl) {
+        setStatus('You need a board image before exporting board JSON.');
+        return;
+      }
+      if (!state.teacherTargets.length) {
+        setStatus('Add at least one target before exporting board JSON.');
+        return;
+      }
+      const payload = {
+        id: 'custom-board-' + Date.now(),
+        boardTitle: els.teacherTitle.value.trim() || 'Custom Anatomy Board',
+        imageUrl,
+        prompt: els.customPrompt.value.trim() || 'Place the structures on the anatomy board.',
+        placementsMode: 'icons',
+        targets: state.teacherTargets.map((target, index) => ({
+          id: 't' + (index + 1),
+          answer: target.answer,
+          x: Math.round(target.x),
+          y: Math.round(target.y)
+        }))
+      };
+      downloadText('anatomy-board.json', JSON.stringify(payload, null, 2), 'application/json');
+      setStatus('Exported anatomy board JSON. You can keep these as a board bank in your repo later.');
+    });
+
+    resetPlacements();
+    render();
   </script>
 </body>
 </html>
