@@ -1,7 +1,0 @@
-[
-  { "id": "heart", "label": "Heart", "src": "./images/anatomy-icons/respiratory-system-icon.png", "category": "Cardiovascular" },
-  { "id": "left-lung", "label": "Left Lung", "src": "./images/anatomy-icons/left-lung.png", "category": "Respiratory" },
-  { "id": "right-lung", "label": "Right Lung", "src": "./images/anatomy-icons/right-lung.png", "category": "Respiratory" },
-  { "id": "trachea", "label": "Trachea", "src": "./images/anatomy-icons/trachea.png", "category": "Respiratory" },
-  { "id": "clavicle", "label": "Clavicle", "src": "./images/anatomy-icons/clavicle.png", "category": "Skeletal" }
-]
